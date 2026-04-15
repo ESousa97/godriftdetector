@@ -109,7 +109,7 @@ O projeto adota uma arquitetura limpa com responsabilidades bem isoladas:
 - [x] Alertas e integrações (Webhooks Slack/Discord).
 - [x] Exportação de relatório em JSON.
 - [x] Detecção de *drift* de variáveis de ambiente do container.
-- [ ] Suporte a Kubernetes (K8s API Provider).
+- [x] Suporte a Kubernetes (K8s API Provider).
 - [ ] Métricas Prometheus para observabilidade.
 
 ## Contribuindo
@@ -128,6 +128,16 @@ Veja o [CONTRIBUTING.md](./CONTRIBUTING.md) para detalhes de como rodar testes, 
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/enoque-sousa-bb89aa168/)
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/esousa97)
+[![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=flat&logo=target&logoColor=white)](https://enoquesousa.vercel.app)
+
+**[⬆ Voltar ao Topo](#godriftdetector)**
+
+Feito com ❤️ por [Enoque Sousa](https://github.com/esousa97)
+
+**Status do Projeto:** Concluído — Pronto para uso
+
+</div>
+om/esousa97)
 [![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=flat&logo=target&logoColor=white)](https://enoquesousa.vercel.app)
 
 **[⬆ Voltar ao Topo](#godriftdetector)**
