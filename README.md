@@ -93,6 +93,10 @@ O comportamento do daemon é customizado por variáveis de ambiente:
 
 O projeto adota uma arquitetura limpa com responsabilidades bem isoladas:
 
+<div align="center">
+  <img src="assets/architecture.svg" alt="GoDriftDetector Architecture Diagram" width="800px">
+</div>
+
 - `cmd/godriftdetector/`: Ponto de entrada do daemon e interface de linha de comando.
 - `internal/domain/`: Regras de negócio, contendo o `Comparator` e os modelos (`Drift`, `DesiredState`, `InfrastructureState`).
 - `internal/infra/`: Adaptadores externos, incluindo o cliente Docker (`DockerProvider`), Git (`GitProvider`), leitor de Compose (`ComposeReader`) e notificações (`WebhookNotifier`).
@@ -127,13 +131,6 @@ Veja o [CONTRIBUTING.md](./CONTRIBUTING.md) para detalhes de como rodar testes, 
 [![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=flat&logo=target&logoColor=white)](https://enoquesousa.vercel.app)
 
 **[⬆ Voltar ao Topo](#godriftdetector)**
-
-Feito com ❤️ por [Enoque Sousa](https://github.com/esousa97)
-
-**Status do Projeto:** Concluído — Pronto para uso
-
-</div>
-
 
 Feito com ❤️ por [Enoque Sousa](https://github.com/esousa97)
 
