@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go build:*)",
+      "Bash(./godriftdetector 2>&1)",
+      "Bash(docker run:*)",
+      "Bash(./godriftdetector)",
+      "Bash(docker rm:*)"
+    ]
+  }
+}
