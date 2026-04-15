@@ -2,6 +2,7 @@ package infra
 
 import (
 	"context"
+	"strings"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -47,10 +48,24 @@ func (p *DockerProvider) GetInfrastructureState(ctx context.Context) (*domain.In
 			})
 		}
 
+		// Inspeciona o container para obter variáveis de ambiente
+		inspectData, err := p.client.ContainerInspect(ctx, c.ID)
+		envMap := make(map[string]string)
+		if err == nil && inspectData.Config != nil {
+			for _, envStr := range inspectData.Config.Env {
+				// envStr tem o formato "CHAVE=VALOR"
+				parts := strings.SplitN(envStr, "=", 2)
+				if len(parts) == 2 {
+					envMap[parts[0]] = parts[1]
+				}
+			}
+		}
+
 		state.Containers = append(state.Containers, domain.ContainerState{
 			ID:    c.ID[:12], // ID curto (padrão CLI)
 			Image: c.Image,
 			Ports: ports,
+			Env:   envMap,
 		})
 	}
 

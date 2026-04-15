@@ -108,7 +108,7 @@ O projeto adota uma arquitetura limpa com responsabilidades bem isoladas:
 - [x] Sincronização remota (Git Provider).
 - [x] Alertas e integrações (Webhooks Slack/Discord).
 - [x] Exportação de relatório em JSON.
-- [ ] Detecção de *drift* de variáveis de ambiente do container.
+- [x] Detecção de *drift* de variáveis de ambiente do container.
 - [ ] Suporte a Kubernetes (K8s API Provider).
 - [ ] Métricas Prometheus para observabilidade.
 

@@ -20,6 +20,21 @@ func NewComparator() *Comparator {
 	return &Comparator{}
 }
 
+// maskSensitiveValue oculta o valor de variáveis de ambiente sensíveis,
+// exibindo apenas os primeiros 3 caracteres.
+func maskSensitiveValue(key, value string) string {
+	lowerKey := strings.ToLower(key)
+	isSensitive := strings.Contains(lowerKey, "pass") || strings.Contains(lowerKey, "token") || strings.Contains(lowerKey, "secret") || strings.Contains(lowerKey, "key") || strings.Contains(lowerKey, "auth")
+
+	if !isSensitive {
+		return value
+	}
+	if len(value) <= 3 {
+		return "***"
+	}
+	return value[:3] + "***"
+}
+
 // Compare analisa o [DesiredState] (esperado) e o [InfrastructureState] (real)
 // para identificar drifts. Retorna um [ComparisonResult] contendo a lista
 // de todas as discrepâncias detectadas.
@@ -69,6 +84,40 @@ func (c *Comparator) Compare(desired *DesiredState, actual *InfrastructureState)
 					Message:     fmt.Sprintf("Porta desejada '%s' não encontrada no container.", desiredPort),
 					Desired:     desiredPort,
 					Actual:      "Não encontrada",
+				})
+			}
+		}
+
+		// Comparação de Variáveis de Ambiente (Env)
+
+		// A. Verifica se o valor de uma variável no runtime é diferente do config (Desatualizada)
+		for key, desiredValue := range svcConfig.Env {
+			actualValue, exists := realContainer.Env[key]
+			if exists && actualValue != desiredValue {
+				maskedDesired := maskSensitiveValue(key, desiredValue)
+				maskedActual := maskSensitiveValue(key, actualValue)
+				result.Drifts = append(result.Drifts, Drift{
+					ServiceName: serviceName,
+					Type:        DriftEnvMismatch,
+					Message:     fmt.Sprintf("Variável de ambiente '%s' desatualizada no container. Esperado: '%s', Atual: '%s'.", key, maskedDesired, maskedActual),
+					Desired:     maskedDesired,
+					Actual:      maskedActual,
+				})
+			}
+		}
+
+		// B. Verifica se uma variável existe no runtime mas não no config (Injectada)
+		for key, actualValue := range realContainer.Env {
+			_, declared := svcConfig.Env[key]
+			if !declared {
+				// Algumas variáveis nativas do docker poderiam ser ignoradas aqui (ex: PATH, HOME)
+				// Mas para fins de auditoria estrita, relatamos tudo como shadow/injected.
+				maskedActual := maskSensitiveValue(key, actualValue)
+				result.Drifts = append(result.Drifts, Drift{
+					ServiceName: serviceName,
+					Type:        DriftEnvInjected,
+					Message:     fmt.Sprintf("Variável de ambiente não declarada encontrada rodando: '%s=%s'.", key, maskedActual),
+					Actual:      maskedActual,
 				})
 			}
 		}

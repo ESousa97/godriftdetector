@@ -12,17 +12,19 @@ type Port struct {
 // ContainerState representa o "Estado Real" (runtime) de um container único
 // extraído do provedor de infraestrutura (ex: Docker).
 type ContainerState struct {
-	ID    string `json:"id"`
-	Image string `json:"image"`
-	Ports []Port `json:"ports"`
+	ID    string            `json:"id"`
+	Image string            `json:"image"`
+	Ports []Port            `json:"ports"`
+	Env   map[string]string `json:"env"`
 }
 
 // ServiceConfig representa a configuração unitária desejada para um serviço,
 // conforme declarada no arquivo docker-compose.yaml.
 type ServiceConfig struct {
-	Image   string   `json:"image"`
-	Ports   []string `json:"ports"`
-	Volumes []string `json:"volumes"`
+	Image   string            `json:"image"`
+	Ports   []string          `json:"ports"`
+	Volumes []string          `json:"volumes"`
+	Env     map[string]string `json:"env"`
 }
 
 // DesiredState representa a consolidação do conjunto de serviços que

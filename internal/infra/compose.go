@@ -3,6 +3,7 @@ package infra
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/esousa97/godriftdetector/internal/domain"
 	"gopkg.in/yaml.v3"
@@ -29,9 +30,10 @@ func (r *ComposeReader) GetDesiredState() (*domain.DesiredState, error) {
 
 	var raw struct {
 		Services map[string]struct {
-			Image   string        `yaml:"image"`
-			Ports   []interface{} `yaml:"ports"`
-			Volumes []interface{} `yaml:"volumes"`
+			Image       string        `yaml:"image"`
+			Ports       []interface{} `yaml:"ports"`
+			Volumes     []interface{} `yaml:"volumes"`
+			Environment interface{}   `yaml:"environment"`
 		} `yaml:"services"`
 	}
 
@@ -48,6 +50,7 @@ func (r *ComposeReader) GetDesiredState() (*domain.DesiredState, error) {
 			Image:   svc.Image,
 			Ports:   make([]string, 0, len(svc.Ports)),
 			Volumes: make([]string, 0, len(svc.Volumes)),
+			Env:     make(map[string]string),
 		}
 
 		for _, p := range svc.Ports {
@@ -55,6 +58,26 @@ func (r *ComposeReader) GetDesiredState() (*domain.DesiredState, error) {
 		}
 		for _, v := range svc.Volumes {
 			config.Volumes = append(config.Volumes, fmt.Sprintf("%v", v))
+		}
+
+		// Processa 'environment' que pode ser um slice ou um map no YAML
+		if svc.Environment != nil {
+			switch envs := svc.Environment.(type) {
+			case map[string]interface{}:
+				for k, v := range envs {
+					config.Env[k] = fmt.Sprintf("%v", v)
+				}
+			case []interface{}:
+				for _, e := range envs {
+					str := fmt.Sprintf("%v", e)
+					parts := strings.SplitN(str, "=", 2)
+					if len(parts) == 2 {
+						config.Env[parts[0]] = parts[1]
+					} else {
+						config.Env[parts[0]] = "" // Variável sem valor explícito
+					}
+				}
+			}
 		}
 
 		state.Services[name] = config

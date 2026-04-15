@@ -4,10 +4,12 @@ package domain
 type DriftType string
 
 const (
-	DriftMissing DriftType = "MISSING"        // Serviço declarado no compose mas não rodando no runtime.
-	DriftShadow  DriftType = "SHADOW_IT"      // Container rodando no runtime mas não declarado no compose.
-	DriftImage   DriftType = "IMAGE_MISMATCH" // Tag da imagem difere entre o compose e o runtime.
-	DriftPort    DriftType = "PORT_MISMATCH"  // Portas expostas diferem entre o compose e o runtime.
+	DriftMissing     DriftType = "MISSING"        // Serviço declarado no compose mas não rodando no runtime.
+	DriftShadow      DriftType = "SHADOW_IT"      // Container rodando no runtime mas não declarado no compose.
+	DriftImage       DriftType = "IMAGE_MISMATCH" // Tag da imagem difere entre o compose e o runtime.
+	DriftPort        DriftType = "PORT_MISMATCH"  // Portas expostas diferem entre o compose e o runtime.
+	DriftEnvInjected DriftType = "ENV_INJECTED"   // Variável de ambiente presente no runtime mas não no compose.
+	DriftEnvMismatch DriftType = "ENV_MISMATCH"   // Valor da variável de ambiente difere entre runtime e compose.
 )
 
 // Drift representa uma discrepância singular e específica detectada entre
