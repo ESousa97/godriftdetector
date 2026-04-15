@@ -2,7 +2,7 @@
   <h1>GoDriftDetector</h1>
   <p>Agente de detecção de drift para infraestruturas Docker baseadas em Compose.</p>
 
-  <img src="assets/architecture.svg" alt="GoDriftDetector Architecture" width="800px">
+  <img src="assets/github-go.png" alt="GoDriftDetector Banner" width="600px">
 
   <br>
 
@@ -127,6 +127,13 @@ Veja o [CONTRIBUTING.md](./CONTRIBUTING.md) para detalhes de como rodar testes, 
 [![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=flat&logo=target&logoColor=white)](https://enoquesousa.vercel.app)
 
 **[⬆ Voltar ao Topo](#godriftdetector)**
+
+Feito com ❤️ por [Enoque Sousa](https://github.com/esousa97)
+
+**Status do Projeto:** Concluído — Pronto para uso
+
+</div>
+
 
 Feito com ❤️ por [Enoque Sousa](https://github.com/esousa97)
 
