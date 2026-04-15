@@ -629,11 +629,6 @@ LOCAL_CONFIG_DIR=. ./godriftdetector --json
 - [x] Environment variable drift detection with masking
 - [x] Kubernetes provider support
 - [x] Prometheus metrics exposition
-- [ ] Drift history persistence
-- [ ] Auto-remediation capabilities
-- [ ] Grafana dashboard templates
-- [ ] Support for Docker Swarm
-- [ ] Custom notification channels
 
 ## Contributing
 
