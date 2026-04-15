@@ -1,6 +1,8 @@
 package domain
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestComparator_Compare(t *testing.T) {
 	desired := &DesiredState{
@@ -9,8 +11,8 @@ func TestComparator_Compare(t *testing.T) {
 				Image: "nginx:latest",
 				Ports: []string{"80:80"},
 				Env: map[string]string{
-					"APP_ENV":      "production",
-					"DB_PASSWORD":  "supersecret123",
+					"APP_ENV":     "production",
+					"DB_PASSWORD": "supersecret123",
 				},
 			},
 			"db": {
@@ -26,9 +28,9 @@ func TestComparator_Compare(t *testing.T) {
 				Image: "nginx:latest",
 				Ports: []Port{{PublicPort: 80, PrivatePort: 80}},
 				Env: map[string]string{
-					"APP_ENV":     "development", // Mismatch
-					"DB_PASSWORD": "hackedpassword", // Mismatch e sensível
-					"NEW_INJECTED": "some_value", // Injected
+					"APP_ENV":      "development",   // Mismatch
+					"DB_PASSWORD":  "hackedpassword", // Mismatch e sensível
+					"NEW_INJECTED": "some_value",    // Injected
 				},
 			},
 			{
@@ -41,53 +43,55 @@ func TestComparator_Compare(t *testing.T) {
 	comparator := NewComparator()
 	report := comparator.Compare(desired, actual)
 
-	// Esperamos:
-	// 1. Shadow IT (redis:alpine)
-	// 2. Missing (postgres:15)
-	// 3. Env Mismatch (APP_ENV)
-	// 4. Env Mismatch (DB_PASSWORD) - com mascaramento
-	// 5. Env Injected (NEW_INJECTED)
-
-	foundShadow := false
-	foundMissing := false
-	foundEnvMismatchApp := false
-	foundEnvMismatchPass := false
-	foundEnvInjected := false
-
-	for _, drift := range report.Drifts {
-		if drift.Type == DriftShadow && drift.Actual == "redis:alpine" {
-			foundShadow = true
+	t.Run("Detect Shadow IT", func(t *testing.T) {
+		if !hasDrift(report.Drifts, DriftShadow, "shadow-container", "redis:alpine") {
+			t.Error("Deveria ter detectado Shadow IT para redis:alpine")
 		}
-		if drift.Type == DriftMissing && drift.ServiceName == "db" {
-			foundMissing = true
+	})
+
+	t.Run("Detect Missing Service", func(t *testing.T) {
+		if !hasDrift(report.Drifts, DriftMissing, "db", "") {
+			t.Error("Deveria ter detectado Downtime/Missing para db")
 		}
-		if drift.Type == DriftEnvMismatch && drift.ServiceName == "web" {
-			if drift.Desired == "production" && drift.Actual == "development" {
-				foundEnvMismatchApp = true
+	})
+
+	t.Run("Detect Env Mismatch APP_ENV", func(t *testing.T) {
+		if !hasEnvDrift(report.Drifts, "web", "production", "development") {
+			t.Error("Deveria ter detectado Env Mismatch para APP_ENV")
+		}
+	})
+
+	t.Run("Detect Env Mismatch DB_PASSWORD Masked", func(t *testing.T) {
+		if !hasEnvDrift(report.Drifts, "web", "sup***", "hac***") {
+			t.Error("Deveria ter detectado Env Mismatch mascarado para DB_PASSWORD")
+		}
+	})
+
+	t.Run("Detect Env Injected", func(t *testing.T) {
+		if !hasDrift(report.Drifts, DriftEnvInjected, "web", "some_value") {
+			t.Error("Deveria ter detectado Env Injected para NEW_INJECTED")
+		}
+	})
+}
+
+func hasDrift(drifts []Drift, driftType DriftType, serviceName, actualValue string) bool {
+	for _, d := range drifts {
+		if d.Type == driftType && d.ServiceName == serviceName {
+			if actualValue == "" || d.Actual == actualValue {
+				return true
 			}
-			// Verifica se mascarou a senha sensível ("sup***" e "hac***")
-			if drift.Desired == "sup***" && drift.Actual == "hac***" {
-				foundEnvMismatchPass = true
+		}
+	}
+	return false
+}
+
+func hasEnvDrift(drifts []Drift, serviceName, desired, actual string) bool {
+	for _, d := range drifts {
+		if d.Type == DriftEnvMismatch && d.ServiceName == serviceName {
+			if d.Desired == desired && d.Actual == actual {
+				return true
 			}
 		}
-		if drift.Type == DriftEnvInjected && drift.ServiceName == "web" && drift.Actual == "some_value" {
-			foundEnvInjected = true
-		}
 	}
-
-	if !foundShadow {
-		t.Error("Deveria ter detectado Shadow IT para redis:alpine")
-	}
-	if !foundMissing {
-		t.Error("Deveria ter detectado Downtime/Missing para db (postgres:15)")
-	}
-	if !foundEnvMismatchApp {
-		t.Error("Deveria ter detectado Env Mismatch para APP_ENV")
-	}
-	if !foundEnvMismatchPass {
-		t.Error("Deveria ter detectado Env Mismatch para DB_PASSWORD e as senhas deveriam estar mascaradas")
-	}
-	if !foundEnvInjected {
-		t.Error("Deveria ter detectado Env Injected para NEW_INJECTED")
-	}
+	return false
 }
