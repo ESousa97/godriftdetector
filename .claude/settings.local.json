@@ -5,7 +5,11 @@
       "Bash(./godriftdetector 2>&1)",
       "Bash(docker run:*)",
       "Bash(./godriftdetector)",
-      "Bash(docker rm:*)"
+      "Bash(docker rm:*)",
+      "Bash(./godriftdetector --json 2>&1)",
+      "Bash(LOCAL_CONFIG_DIR=. ./godriftdetector --json 2>&1)",
+      "Bash(__NEW_LINE_aa619e8638dfcf62__ cd:*)",
+      "Bash(LOCAL_CONFIG_DIR=. ./godriftdetector --json)"
     ]
   }
 }

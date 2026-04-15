@@ -27,7 +27,7 @@ func (n *WebhookNotifier) NotifyDrifts(report *domain.ComparisonResult) error {
 	}
 
 	payload := map[string]interface{}{
-		"text": fmt.Sprintf("🚨 *Drift Detectado!* Encontradas %d discrepâncias na infraestrutura às %s.", 
+		"text": fmt.Sprintf("🚨 *Drift Detectado!* Encontradas %d discrepâncias na infraestrutura às %s.",
 			len(report.Drifts), time.Now().Format(time.RFC822)),
 		"attachments": []map[string]interface{}{},
 	}

@@ -5,15 +5,24 @@ import (
 	"strings"
 )
 
-// Comparator realiza a comparação entre o estado desejado e o real.
+// Comparator realiza a comparação entre o estado desejado e o real da infraestrutura.
+// Ele detecta serviços declarados que não estão rodando (Downtime), containers
+// rodando que não foram declarados (Shadow IT) e discrepâncias de portas.
+//
+// Crie uma nova instância utilizando [NewComparator]:
+//
+//	comp := domain.NewComparator()
+//	report := comp.Compare(desired, actual)
 type Comparator struct{}
 
-// NewComparator cria uma nova instância do motor de comparação.
+// NewComparator cria e retorna uma nova instância do motor de comparação [Comparator].
 func NewComparator() *Comparator {
 	return &Comparator{}
 }
 
-// Compare analisa o estado desejado e o real para identificar drifts.
+// Compare analisa o [DesiredState] (esperado) e o [InfrastructureState] (real)
+// para identificar drifts. Retorna um [ComparisonResult] contendo a lista
+// de todas as discrepâncias detectadas.
 func (c *Comparator) Compare(desired *DesiredState, actual *InfrastructureState) *ComparisonResult {
 	result := &ComparisonResult{
 		Drifts: []Drift{},
