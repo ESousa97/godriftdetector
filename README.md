@@ -42,12 +42,12 @@ Alerta enviado com sucesso para o webhook.
 | **go-git** | Sincronização remota do estado desejado via repositórios Git. |
 | **yaml.v3** | Parsing robusto de arquivos `docker-compose.yaml`. |
 | **lipgloss** | Estilização visual (cores, negrito) das saídas de terminal. |
+| **Prometheus SDK** | Exposição de métricas para observabilidade. |
 
 ## Pré-requisitos
 
 - Go >= 1.25.0
-- Docker em execução no host
-- (Opcional) Acesso a repositórios remotos Git
+- Docker em execução no host ou acesso ao Cluster Kubernetes
 - (Opcional) Webhooks configurados no Slack/Discord
 
 ## Instalação e Uso
@@ -68,12 +68,24 @@ go build -o godriftdetector ./cmd/godriftdetector
 ./godriftdetector
 ```
 
+### Seleção de Provedores de Infraestrutura
+
+A ferramenta possui suporte a Docker e Kubernetes, utilize a flag `--provider` para escolher.
+- **Docker Compose** (Padrão): `./godriftdetector --provider=docker`
+- **Kubernetes**: `./godriftdetector --provider=k8s --namespace=default`
+
+### Observabilidade
+
+O agente expõe métricas no formato Prometheus na porta **9090**:
+- Endpoint: `http://localhost:9090/metrics`
+- Métricas principais: `drift_detected_total`, `drift_by_service`, `last_scan_timestamp`.
+
 ### Uso: Auditoria e Relatório em JSON
 
 Útil para integrar a esteiras de CI/CD ou coletar snapshots de segurança:
 
 ```bash
-godriftdetector --json
+godriftdetector --provider=k8s --namespace=production --json
 ```
 
 ## Configuração
@@ -99,7 +111,7 @@ O projeto adota uma arquitetura limpa com responsabilidades bem isoladas:
 
 - `cmd/godriftdetector/`: Ponto de entrada do daemon e interface de linha de comando.
 - `internal/domain/`: Regras de negócio, contendo o `Comparator` e os modelos (`Drift`, `DesiredState`, `InfrastructureState`).
-- `internal/infra/`: Adaptadores externos, incluindo o cliente Docker (`DockerProvider`), Git (`GitProvider`), leitor de Compose (`ComposeReader`) e notificações (`WebhookNotifier`).
+- `internal/infra/`: Adaptadores externos, incluindo o cliente Docker (`DockerProvider`), Git (`GitProvider`), leitor de Compose (`ComposeReader`), Kubernetes (`KubernetesProvider`) e notificações (`WebhookNotifier`).
 
 ## Roadmap
 
@@ -110,7 +122,7 @@ O projeto adota uma arquitetura limpa com responsabilidades bem isoladas:
 - [x] Exportação de relatório em JSON.
 - [x] Detecção de *drift* de variáveis de ambiente do container.
 - [x] Suporte a Kubernetes (K8s API Provider).
-- [ ] Métricas Prometheus para observabilidade.
+- [x] Métricas Prometheus para observabilidade.
 
 ## Contribuindo
 
@@ -128,16 +140,6 @@ Veja o [CONTRIBUTING.md](./CONTRIBUTING.md) para detalhes de como rodar testes, 
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/enoque-sousa-bb89aa168/)
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/esousa97)
-[![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=flat&logo=target&logoColor=white)](https://enoquesousa.vercel.app)
-
-**[⬆ Voltar ao Topo](#godriftdetector)**
-
-Feito com ❤️ por [Enoque Sousa](https://github.com/esousa97)
-
-**Status do Projeto:** Concluído — Pronto para uso
-
-</div>
-om/esousa97)
 [![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=flat&logo=target&logoColor=white)](https://enoquesousa.vercel.app)
 
 **[⬆ Voltar ao Topo](#godriftdetector)**

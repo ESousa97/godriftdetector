@@ -34,6 +34,8 @@ var (
 
 func main() {
 	jsonMode := flag.Bool("json", false, "Gera o relatório de drift em formato JSON e encerra")
+	providerType := flag.String("provider", "docker", "Provedor de infraestrutura a monitorar: 'docker' ou 'k8s'")
+	namespace := flag.String("namespace", "default", "Namespace do Kubernetes (aplicável apenas com --provider=k8s)")
 	flag.Parse()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -48,7 +50,7 @@ func main() {
 	webhookURL := os.Getenv("WEBHOOK_URL")
 
 	if *jsonMode {
-		runOneShotJSON(ctx, gitURL, localConfigDir)
+		runOneShotJSON(ctx, gitURL, localConfigDir, *providerType, *namespace)
 		return
 	}
 
@@ -60,12 +62,12 @@ func main() {
 		}
 	}
 
-	fmt.Printf("Iniciando Agente GoDriftDetector (Intervalo: %v)\n", interval)
+	fmt.Printf("Iniciando Agente GoDriftDetector (Intervalo: %v, Provedor: %s)\n", interval, *providerType)
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	// Execução inicial
-	runDriftCheck(ctx, gitURL, localConfigDir, webhookURL)
+	runDriftCheck(ctx, gitURL, localConfigDir, webhookURL, *providerType, *namespace)
 
 	for {
 		select {
@@ -73,29 +75,61 @@ func main() {
 			fmt.Println("\nEncerrando agente...")
 			return
 		case <-ticker.C:
-			runDriftCheck(ctx, gitURL, localConfigDir, webhookURL)
+			runDriftCheck(ctx, gitURL, localConfigDir, webhookURL, *providerType, *namespace)
 		}
 	}
 }
 
-func runOneShotJSON(ctx context.Context, gitURL, localDir string) {
+func getProviders(providerType, localDir, namespace string) (domain.DesiredStateReader, domain.InfrastructureProvider, error) {
+	var reader domain.DesiredStateReader
+	var provider domain.InfrastructureProvider
+	var err error
+
+	if providerType == "k8s" {
+		configPath := filepath.Join(localDir, "k8s-manifest.yaml")
+		reader = infra.NewK8sManifestReader(configPath)
+		provider, err = infra.NewKubernetesProvider("", namespace) // usa ~/.kube/config ou in-cluster
+		if err != nil {
+			return nil, nil, fmt.Errorf("falha ao inicializar Kubernetes Provider: %v", err)
+		}
+	} else {
+		// Default: docker
+		configPath := filepath.Join(localDir, "docker-compose.yaml")
+		reader = infra.NewComposeReader(configPath)
+		provider, err = infra.NewDockerProvider()
+		if err != nil {
+			return nil, nil, fmt.Errorf("falha ao inicializar Docker Provider: %v", err)
+		}
+	}
+
+	return reader, provider, nil
+}
+
+func runOneShotJSON(ctx context.Context, gitURL, localDir, providerType, namespace string) {
 	// Sincroniza Git se necessário
 	if gitURL != "" {
 		gitProvider := infra.NewGitProvider(gitURL, localDir)
 		_ = gitProvider.SyncRepository()
 	}
 
-	configPath := filepath.Join(localDir, "docker-compose.yaml")
-	composeReader := infra.NewComposeReader(configPath)
-	desired, err := composeReader.GetDesiredState()
+	reader, provider, err := getProviders(providerType, localDir, namespace)
+	if err != nil {
+		fmt.Printf("{\"error\": \"%v\"}\n", err)
+		return
+	}
+	defer provider.Close()
+
+	desired, err := reader.GetDesiredState()
 	if err != nil {
 		fmt.Printf("{\"error\": \"%v\"}\n", err)
 		return
 	}
 
-	provider, _ := infra.NewDockerProvider()
-	defer provider.Close()
-	actual, _ := provider.GetInfrastructureState(ctx)
+	actual, err := provider.GetInfrastructureState(ctx)
+	if err != nil {
+		fmt.Printf("{\"error\": \"%v\"}\n", err)
+		return
+	}
 
 	comparator := domain.NewComparator()
 	report := comparator.Compare(desired, actual)
@@ -104,7 +138,7 @@ func runOneShotJSON(ctx context.Context, gitURL, localDir string) {
 	fmt.Println(string(output))
 }
 
-func runDriftCheck(ctx context.Context, gitURL, localDir, webhookURL string) {
+func runDriftCheck(ctx context.Context, gitURL, localDir, webhookURL, providerType, namespace string) {
 	fmt.Printf("\n--- Ciclo de verificação: %s ---\n", time.Now().Format(time.RFC3339))
 
 	if gitURL != "" {
@@ -114,29 +148,30 @@ func runDriftCheck(ctx context.Context, gitURL, localDir, webhookURL string) {
 		}
 	}
 
-	configPath := filepath.Join(localDir, "docker-compose.yaml")
-	composeReader := infra.NewComposeReader(configPath)
-	desiredState, err := composeReader.GetDesiredState()
+	reader, provider, err := getProviders(providerType, localDir, namespace)
 	if err != nil {
-		fmt.Printf(warningStyle.Render("Erro ao ler configuração: %v")+"\n", err)
-		return
-	}
-
-	provider, err := infra.NewDockerProvider()
-	if err != nil {
-		fmt.Printf(driftStyle.Render("Erro Docker Provider: %v")+"\n", err)
+		fmt.Printf(driftStyle.Render("%v")+"\n", err)
 		return
 	}
 	defer provider.Close()
 
+	desiredState, err := reader.GetDesiredState()
+	if err != nil {
+		fmt.Printf(warningStyle.Render("Erro ao ler configuração (%s): %v")+"\n", providerType, err)
+		return
+	}
+
 	state, err := provider.GetInfrastructureState(ctx)
 	if err != nil {
-		fmt.Printf(driftStyle.Render("Erro Estado Real: %v")+"\n", err)
+		fmt.Printf(driftStyle.Render("Erro Estado Real (%s): %v")+"\n", providerType, err)
 		return
 	}
 
 	comparator := domain.NewComparator()
 	report := comparator.Compare(desiredState, state)
+
+	// Atualiza métricas Prometheus
+	infra.UpdateMetrics(report)
 
 	if len(report.Drifts) > 0 {
 		fmt.Println(headerStyle.Render("DRIFT DETECTADO!"))
@@ -155,5 +190,8 @@ func runDriftCheck(ctx context.Context, gitURL, localDir, webhookURL string) {
 		}
 	} else {
 		fmt.Println("Sistema em conformidade.")
+	}
+}
+em conformidade.")
 	}
 }
