@@ -7,7 +7,25 @@ import (
 	"log"
 	"os"
 
+	"github.com/charmbracelet/lipgloss"
+	"github.com/esousa97/godriftdetector/internal/domain"
 	"github.com/esousa97/godriftdetector/internal/infra"
+)
+
+var (
+	driftStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FF0000")).
+			Bold(true).
+			Padding(0, 1)
+
+	headerStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#00FF00")).
+			Bold(true).
+			Underline(true)
+
+	warningStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FFA500")).
+			Italic(true)
 )
 
 func main() {
@@ -17,11 +35,12 @@ func main() {
 	fmt.Fprintln(os.Stderr, "Lendo configuração desejada (docker-compose.yaml)...")
 	composeReader := infra.NewComposeReader("docker-compose.yaml")
 	desiredState, err := composeReader.GetDesiredState()
+
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Aviso: Não foi possível ler docker-compose.yaml: %v\n", err)
+		fmt.Fprintf(os.Stderr, warningStyle.Render("Aviso: Não foi possível ler docker-compose.yaml: %v")+"\n", err)
 	} else {
 		desiredOutput, _ := json.MarshalIndent(desiredState, "", "  ")
-		fmt.Println("--- ESTADO DESEJADO (DESIRED STATE) ---")
+		fmt.Println(headerStyle.Render("--- ESTADO DESEJADO (DESIRED STATE) ---"))
 		fmt.Println(string(desiredOutput))
 		fmt.Println()
 	}
@@ -46,6 +65,22 @@ func main() {
 		log.Fatalf("Erro ao formatar output: %v", err)
 	}
 
-	fmt.Println("--- ESTADO REAL (INFRASTRUCTURE STATE) ---")
+	fmt.Println(headerStyle.Render("--- ESTADO REAL (INFRASTRUCTURE STATE) ---"))
 	fmt.Println(string(output))
+	fmt.Println()
+
+	// 5. Motor de Comparação e Relatório de Drift
+	if desiredState != nil {
+		comparator := domain.NewComparator()
+		report := comparator.Compare(desiredState, state)
+
+		fmt.Println(headerStyle.Render("--- RELATÓRIO DE DRIFT (DRIFT REPORT) ---"))
+		if len(report.Drifts) == 0 {
+			fmt.Println("Parabéns! Nenhuma discrepância detectada entre os estados.")
+		} else {
+			for _, drift := range report.Drifts {
+				fmt.Printf("[%s] %s\n", driftStyle.Render(string(drift.Type)), drift.Message)
+			}
+		}
+	}
 }
