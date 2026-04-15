@@ -63,6 +63,10 @@ func main() {
 	}
 
 	fmt.Printf("Iniciando Agente GoDriftDetector (Intervalo: %v, Provedor: %s)\n", interval, *providerType)
+
+	// Inicia servidor de métricas Prometheus
+	infra.StartMetricsServer()
+
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
@@ -190,8 +194,5 @@ func runDriftCheck(ctx context.Context, gitURL, localDir, webhookURL, providerTy
 		}
 	} else {
 		fmt.Println("Sistema em conformidade.")
-	}
-}
-em conformidade.")
 	}
 }
