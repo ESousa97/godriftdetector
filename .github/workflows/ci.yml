@@ -23,7 +23,8 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
-          args: --timeout=5m
+          install-mode: go
+          args: --timeout=10m
 
   test:
     name: Test
