@@ -8,6 +8,7 @@
 
 ![CI](https://github.com/esousa97/godriftdetector/actions/workflows/ci.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/esousa97/godriftdetector?style=flat)](https://goreportcard.com/report/github.com/esousa97/godriftdetector)
+[![CodeFactor](https://www.codefactor.io/repository/github/esousa97/godriftdetector/badge)](https://www.codefactor.io/repository/github/esousa97/godriftdetector)
 [![Go Reference](https://img.shields.io/badge/go.dev-reference-007d9c?style=flat&logo=go&logoColor=white)](https://pkg.go.dev/github.com/esousa97/godriftdetector)
 ![License](https://img.shields.io/github/license/esousa97/godriftdetector?style=flat&color=blue)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/esousa97/godriftdetector?style=flat&logo=go&logoColor=white)
