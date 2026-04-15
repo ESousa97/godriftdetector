@@ -1,13 +1,19 @@
-# godriftdetector
+<div align="center">
+  <h1>GoDriftDetector</h1>
+  <p>Agente de detecção de drift para infraestruturas Docker baseadas em Compose.</p>
 
-> Agente de detecção de drift para infraestruturas Docker baseadas em Compose.
+  <img src="assets/architecture.svg" alt="GoDriftDetector Architecture" width="800px">
+
+  <br>
 
 ![CI](https://github.com/esousa97/godriftdetector/actions/workflows/ci.yml/badge.svg)
-![Go Report Card](https://goreportcard.com/badge/github.com/esousa97/godriftdetector)
-![Go Reference](https://pkg.go.dev/badge/github.com/esousa97/godriftdetector.svg)
-![License](https://img.shields.io/github/license/esousa97/godriftdetector)
-![Go Version](https://img.shields.io/github/go-mod/go-version/esousa97/godriftdetector)
-![Last Commit](https://img.shields.io/github/last-commit/esousa97/godriftdetector)
+[![Go Report Card](https://goreportcard.com/badge/github.com/esousa97/godriftdetector?style=flat)](https://goreportcard.com/report/github.com/esousa97/godriftdetector)
+[![Go Reference](https://img.shields.io/badge/go.dev-reference-007d9c?style=flat&logo=go&logoColor=white)](https://pkg.go.dev/github.com/esousa97/godriftdetector)
+![License](https://img.shields.io/github/license/esousa97/godriftdetector?style=flat&color=blue)
+![Go Version](https://img.shields.io/github/go-mod/go-version/esousa97/godriftdetector?style=flat&logo=go&logoColor=white)
+![Last Commit](https://img.shields.io/github/last-commit/esousa97/godriftdetector?style=flat)
+
+</div>
 
 ---
 
@@ -110,8 +116,20 @@ Veja o [CONTRIBUTING.md](./CONTRIBUTING.md) para detalhes de como rodar testes, 
 
 [MIT License](./LICENSE)
 
+<div align="center">
+
 ## Autor
 
-**Enoque Sousa**  
-Portfólio: [https://enoquesousa.vercel.app](https://enoquesousa.vercel.app)  
-GitHub: [@esousa97](https://github.com/esousa97)
+**Enoque Sousa**
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/enoque-sousa-bb89aa168/)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/esousa97)
+[![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=flat&logo=target&logoColor=white)](https://enoquesousa.vercel.app)
+
+**[⬆ Voltar ao Topo](#godriftdetector)**
+
+Feito com ❤️ por [Enoque Sousa](https://github.com/esousa97)
+
+**Status do Projeto:** Concluído — Pronto para uso
+
+</div>
