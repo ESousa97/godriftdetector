@@ -1,0 +1,24 @@
+# Binaries
+godriftdetector
+godriftdetector~
+webhook_server
+
+# Build and cache
+bin/
+obj/
+dist/
+pkg/
+vendor/
+.cache/
+
+# IDE and Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs and temporary files
+*.log
+*.tmp
+coverage.out

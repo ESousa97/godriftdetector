@@ -9,7 +9,14 @@
       "Bash(./godriftdetector --json 2>&1)",
       "Bash(LOCAL_CONFIG_DIR=. ./godriftdetector --json 2>&1)",
       "Bash(__NEW_LINE_aa619e8638dfcf62__ cd:*)",
-      "Bash(LOCAL_CONFIG_DIR=. ./godriftdetector --json)"
+      "Bash(LOCAL_CONFIG_DIR=. ./godriftdetector --json)",
+      "Bash(__NEW_LINE_827733445df91d7d__ cd:*)",
+      "Bash(./godriftdetector -h)",
+      "Bash(__NEW_LINE_c29145cfc1daa81e__ cat:*)",
+      "Bash(/c/Users/sousa/Projects/github-esousa97/godriftdetector/assets/architecture.svg:*)",
+      "Bash(__NEW_LINE_c29145cfc1daa81e__ echo:*)",
+      "Bash(__NEW_LINE_edda4bd44097c309__ cd /c/Users/sousa/Projects/github-esousa97/godriftdetector __NEW_LINE_edda4bd44097c309__ echo \":*)",
+      "Bash(cat:*)"
     ]
   }
 }
