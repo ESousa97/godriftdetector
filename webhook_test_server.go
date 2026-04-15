@@ -45,5 +45,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/webhook", webhookHandler)
 	fmt.Println("Servidor de webhook rodando em http://localhost:8888/webhook")
-	http.ListenAndServe(":8888", nil)
+	if err := http.ListenAndServe(":8888", nil); err != nil {
+		fmt.Printf("Erro ao iniciar o servidor: %v\n", err)
+	}
 }
